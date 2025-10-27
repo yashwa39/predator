@@ -1,0 +1,353 @@
+// DOM Elements
+const navbar = document.getElementById('navbar');
+const hamburger = document.getElementById('hamburger');
+const navMenu = document.getElementById('nav-menu');
+const navLinks = document.querySelectorAll('.nav-link');
+const tabBtns = document.querySelectorAll('.tab-btn');
+const tabContents = document.querySelectorAll('.tab-content');
+const statNumbers = document.querySelectorAll('.stat-number');
+const contactForm = document.getElementById('contact-form');
+const formMessage = document.getElementById('form-message');
+
+// Mobile Navigation Toggle
+hamburger.addEventListener('click', () => {
+    hamburger.classList.toggle('active');
+    navMenu.classList.toggle('active');
+});
+
+// Close mobile menu when clicking on a link
+navLinks.forEach(link => {
+    link.addEventListener('click', () => {
+        hamburger.classList.remove('active');
+        navMenu.classList.remove('active');
+    });
+});
+
+// Navbar scroll effect
+window.addEventListener('scroll', () => {
+    if (window.scrollY > 100) {
+        navbar.classList.add('scrolled');
+    } else {
+        navbar.classList.remove('scrolled');
+    }
+});
+
+// Smooth scrolling for navigation links
+navLinks.forEach(link => {
+    link.addEventListener('click', (e) => {
+        e.preventDefault();
+        const targetId = link.getAttribute('href');
+        const targetSection = document.querySelector(targetId);
+        
+        if (targetSection) {
+            const offsetTop = targetSection.offsetTop - 70; // Account for fixed navbar
+            window.scrollTo({
+                top: offsetTop,
+                behavior: 'smooth'
+            });
+        }
+    });
+});
+
+// Tab functionality for How It Works section
+tabBtns.forEach(btn => {
+    btn.addEventListener('click', () => {
+        // Remove active class from all buttons and contents
+        tabBtns.forEach(b => b.classList.remove('active'));
+        tabContents.forEach(c => c.classList.remove('active'));
+        
+        // Add active class to clicked button
+        btn.classList.add('active');
+        
+        // Show corresponding content
+        const targetTab = btn.getAttribute('data-tab');
+        const targetContent = document.getElementById(targetTab);
+        if (targetContent) {
+            targetContent.classList.add('active');
+        }
+    });
+});
+
+// Animated counter for statistics
+function animateCounter(element, target, duration = 2000) {
+    let start = 0;
+    const increment = target / (duration / 16);
+    
+    function updateCounter() {
+        start += increment;
+        if (start < target) {
+            element.textContent = Math.floor(start);
+            requestAnimationFrame(updateCounter);
+        } else {
+            element.textContent = target;
+        }
+    }
+    
+    updateCounter();
+}
+
+// Intersection Observer for animations
+const observerOptions = {
+    threshold: 0.1,
+    rootMargin: '0px 0px -50px 0px'
+};
+
+const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+        if (entry.isIntersecting) {
+            // Animate statistics when they come into view
+            if (entry.target.classList.contains('stat-number')) {
+                const target = parseInt(entry.target.getAttribute('data-target'));
+                animateCounter(entry.target, target);
+                observer.unobserve(entry.target); // Only animate once
+            }
+            
+            // Add animation classes to other elements
+            entry.target.classList.add('animate-in');
+        }
+    });
+}, observerOptions);
+
+// Observe elements for animation
+document.querySelectorAll('.stat-number, .feature-card, .team-card, .problem-card').forEach(el => {
+    observer.observe(el);
+});
+
+// Sensor Demo Simulation
+function simulateDetection() {
+    const sensorStrip = document.getElementById('sensor-strip');
+    const meterFill = document.getElementById('meter-fill');
+    const demoResults = document.getElementById('demo-results');
+    
+    // Reset
+    sensorStrip.querySelector('.color-indicator').style.width = '0%';
+    meterFill.style.width = '0%';
+    demoResults.textContent = '';
+    
+    // Simulate detection
+    setTimeout(() => {
+        sensorStrip.querySelector('.color-indicator').style.width = '75%';
+        meterFill.style.width = '75%';
+        
+        // Show results
+        setTimeout(() => {
+            demoResults.innerHTML = `
+                <div style="color: #ff4444; font-weight: bold;">
+                    ⚠️ HAZARD DETECTED!<br>
+                    <small>Gas concentration: 75% - High Risk</small>
+                </div>
+            `;
+        }, 1000);
+    }, 500);
+}
+
+// Contact Form Validation and Submission
+contactForm.addEventListener('submit', (e) => {
+    e.preventDefault();
+    
+    // Get form data
+    const formData = new FormData(contactForm);
+    const data = Object.fromEntries(formData);
+    
+    // Validate required fields
+    const requiredFields = ['name', 'email', 'interest', 'message'];
+    let isValid = true;
+    let errorMessage = '';
+    
+    requiredFields.forEach(field => {
+        if (!data[field] || data[field].trim() === '') {
+            isValid = false;
+            errorMessage += `${field.charAt(0).toUpperCase() + field.slice(1)} is required. `;
+        }
+    });
+    
+    // Validate email format
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (data.email && !emailRegex.test(data.email)) {
+        isValid = false;
+        errorMessage += 'Please enter a valid email address. ';
+    }
+    
+    if (!isValid) {
+        showFormMessage(errorMessage, 'error');
+        return;
+    }
+    
+    // Simulate form submission
+    showFormMessage('Sending message...', 'info');
+    
+    setTimeout(() => {
+        showFormMessage('Thank you for your message! We will get back to you within 24 hours.', 'success');
+        contactForm.reset();
+    }, 2000);
+});
+
+function showFormMessage(message, type) {
+    formMessage.textContent = message;
+    formMessage.className = `form-message ${type}`;
+    formMessage.style.display = 'block';
+    
+    // Hide message after 5 seconds for success messages
+    if (type === 'success') {
+        setTimeout(() => {
+            formMessage.style.display = 'none';
+        }, 5000);
+    }
+}
+
+// Parallax effect for hero section
+window.addEventListener('scroll', () => {
+    const scrolled = window.pageYOffset;
+    const parallaxElements = document.querySelectorAll('.animated-grid, .pulse-dots');
+    
+    parallaxElements.forEach(element => {
+        const speed = 0.5;
+        element.style.transform = `translateY(${scrolled * speed}px)`;
+    });
+});
+
+// Add loading animation
+window.addEventListener('load', () => {
+    document.body.classList.add('loaded');
+    
+    // Animate hero elements
+    const heroElements = document.querySelectorAll('.hero-title, .hero-tagline, .hero-mission, .hero-buttons');
+    heroElements.forEach((element, index) => {
+        setTimeout(() => {
+            element.style.opacity = '1';
+            element.style.transform = 'translateY(0)';
+        }, index * 200);
+    });
+});
+
+// Initialize hero element styles
+document.addEventListener('DOMContentLoaded', () => {
+    const heroElements = document.querySelectorAll('.hero-title, .hero-tagline, .hero-mission, .hero-buttons');
+    heroElements.forEach(element => {
+        element.style.opacity = '0';
+        element.style.transform = 'translateY(30px)';
+        element.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
+    });
+});
+
+// Add hover effects to cards
+document.querySelectorAll('.feature-card, .team-card, .problem-card, .foundation-card').forEach(card => {
+    card.addEventListener('mouseenter', () => {
+        card.style.transform = 'translateY(-10px)';
+        card.style.boxShadow = '0 10px 30px rgba(0, 0, 0, 0.15)';
+    });
+    
+    card.addEventListener('mouseleave', () => {
+        card.style.transform = 'translateY(0)';
+        card.style.boxShadow = '0 5px 20px rgba(0, 0, 0, 0.1)';
+    });
+});
+
+// Add click effects to buttons
+document.querySelectorAll('.btn, .demo-btn, .tab-btn').forEach(btn => {
+    btn.addEventListener('click', function(e) {
+        // Create ripple effect
+        const ripple = document.createElement('span');
+        const rect = this.getBoundingClientRect();
+        const size = Math.max(rect.width, rect.height);
+        const x = e.clientX - rect.left - size / 2;
+        const y = e.clientY - rect.top - size / 2;
+        
+        ripple.style.width = ripple.style.height = size + 'px';
+        ripple.style.left = x + 'px';
+        ripple.style.top = y + 'px';
+        ripple.classList.add('ripple');
+        
+        this.appendChild(ripple);
+        
+        setTimeout(() => {
+            ripple.remove();
+        }, 600);
+    });
+});
+
+// Add CSS for ripple effect
+const style = document.createElement('style');
+style.textContent = `
+    .btn, .demo-btn, .tab-btn {
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .ripple {
+        position: absolute;
+        border-radius: 50%;
+        background: rgba(255, 255, 255, 0.3);
+        transform: scale(0);
+        animation: ripple-animation 0.6s linear;
+        pointer-events: none;
+    }
+    
+    @keyframes ripple-animation {
+        to {
+            transform: scale(4);
+            opacity: 0;
+        }
+    }
+    
+    .animate-in {
+        animation: slideInUp 0.6s ease forwards;
+    }
+    
+    @keyframes slideInUp {
+        from {
+            opacity: 0;
+            transform: translateY(30px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+`;
+document.head.appendChild(style);
+
+// Keyboard navigation support
+document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+        // Close mobile menu
+        hamburger.classList.remove('active');
+        navMenu.classList.remove('active');
+    }
+});
+
+// Accessibility improvements
+document.querySelectorAll('a, button').forEach(element => {
+    element.addEventListener('focus', () => {
+        element.style.outline = '2px solid #ff4444';
+        element.style.outlineOffset = '2px';
+    });
+    
+    element.addEventListener('blur', () => {
+        element.style.outline = 'none';
+    });
+});
+
+// Performance optimization: Throttle scroll events
+function throttle(func, wait) {
+    let timeout;
+    return function executedFunction(...args) {
+        const later = () => {
+            clearTimeout(timeout);
+            func(...args);
+        };
+        clearTimeout(timeout);
+        timeout = setTimeout(later, wait);
+    };
+}
+
+// Apply throttling to scroll events
+const throttledScrollHandler = throttle(() => {
+    if (window.scrollY > 100) {
+        navbar.classList.add('scrolled');
+    } else {
+        navbar.classList.remove('scrolled');
+    }
+}, 10);
+
+window.addEventListener('scroll', throttledScrollHandler);

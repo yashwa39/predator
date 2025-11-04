@@ -351,3 +351,100 @@ const throttledScrollHandler = throttle(() => {
 }, 10);
 
 window.addEventListener('scroll', throttledScrollHandler);
+
+// --- Team card: tilt + popover interactions ---
+(function enhanceTeamCards() {
+    const teamCards = document.querySelectorAll('.team-card');
+
+    // Lightweight role descriptions mapped from heading text
+    const roleDescriptions = {
+        'Primary Researcher': 'Leads core research strategy and breakthroughs.',
+        'Secondary Researcher': 'Runs supporting studies and validates results.',
+        'Tertiary Researcher': 'Keeps research pipelines organized and documented.',
+        'Critical Thinker': 'Pressure-tests ideas and assumptions across domains.',
+        'Interdisciplinary Head': 'Connects physics, chemistry, and electronics efforts.',
+        'Industry Collaborator': 'Bridges product needs with partner feedback loops.',
+        'Cost Manager': 'Optimizes budgets and BOM without compromising quality.',
+        'Project Manager': 'Synchronizes timelines, owners, and delivery risks.',
+        'Marketing Manager': 'Crafts narratives and drives adoption channels.',
+        'Employability Definer': 'Aligns roles and skills for workforce readiness.',
+        'Learning Lead': 'Owns continuous learning and model improvement.'
+    };
+
+    // Card tilt effect
+    teamCards.forEach(card => {
+        const maxTilt = 8; // degrees
+        let resetTimeout;
+
+        card.addEventListener('mousemove', (e) => {
+            const rect = card.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            const y = e.clientY - rect.top;
+            const centerX = rect.width / 2;
+            const centerY = rect.height / 2;
+            const rotateX = ((y - centerY) / centerY) * -maxTilt;
+            const rotateY = ((x - centerX) / centerX) * maxTilt;
+            card.style.transform = `perspective(700px) rotateX(${rotateX}deg) rotateY(${rotateY}deg)`;
+        });
+
+        card.addEventListener('mouseleave', () => {
+            clearTimeout(resetTimeout);
+            card.style.transform = 'translateY(0)';
+        });
+
+        // Click to toggle popover with details
+        card.addEventListener('click', (e) => {
+            // Avoid text selection issues
+            e.preventDefault();
+
+            // Close other popovers
+            document.querySelectorAll('.team-card.team-expanded').forEach(other => {
+                if (other !== card) {
+                    other.classList.remove('team-expanded');
+                    const p = other.querySelector('.team-popover');
+                    if (p) p.remove();
+                }
+            });
+
+            const existing = card.querySelector('.team-popover');
+            if (existing) {
+                card.classList.remove('team-expanded');
+                existing.remove();
+                return;
+            }
+
+            const title = (card.querySelector('h4')?.textContent || '').trim();
+            const desc = roleDescriptions[title] || 'Contributes to mission-critical outcomes across the program.';
+
+            const pop = document.createElement('div');
+            pop.className = 'team-popover';
+            pop.innerHTML = `
+                <div class="team-popover-content">
+                    <strong>${title}</strong>
+                    <p>${desc}</p>
+                    <button type="button" class="team-popover-close" aria-label="Close">Close</button>
+                </div>
+            `;
+            card.appendChild(pop);
+            card.classList.add('team-expanded');
+
+            // Close handlers
+            pop.querySelector('.team-popover-close').addEventListener('click', (ev) => {
+                ev.stopPropagation();
+                card.classList.remove('team-expanded');
+                pop.remove();
+            });
+        });
+    });
+
+    // Close on outside click
+    document.addEventListener('click', (e) => {
+        const open = document.querySelector('.team-card.team-expanded');
+        if (!open) return;
+        if (!open.contains(e.target)) {
+            open.classList.remove('team-expanded');
+            const p = open.querySelector('.team-popover');
+            if (p) p.remove();
+        }
+    });
+})();

@@ -803,7 +803,9 @@ section {
     border-radius: 15px;
     box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
     text-align: center;
-    transition: transform 0.3s ease;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    transform-style: preserve-3d;
+    perspective: 700px;
 }
 
 .team-card:hover {
@@ -833,6 +835,65 @@ section {
     color: #666;
     font-size: 0.9rem;
     line-height: 1.5;
+}
+
+/* Popover for team details */
+.team-card.team-expanded {
+    position: relative;
+    z-index: 2;
+}
+
+.team-popover {
+    position: absolute;
+    left: 50%;
+    bottom: -10px;
+    transform: translate(-50%, 100%);
+    width: min(320px, 90vw);
+    background: #1a1a2e;
+    color: #fff;
+    border-radius: 12px;
+    box-shadow: 0 15px 40px rgba(0,0,0,0.25);
+    padding: 1rem;
+    animation: popIn 0.18s ease-out both;
+}
+
+.team-popover:before {
+    content: '';
+    position: absolute;
+    top: -8px;
+    left: 50%;
+    transform: translateX(-50%);
+    border-left: 8px solid transparent;
+    border-right: 8px solid transparent;
+    border-bottom: 8px solid #1a1a2e;
+}
+
+.team-popover-content strong {
+    color: #ff6b6b;
+    display: block;
+    margin-bottom: 0.25rem;
+}
+
+.team-popover-content p {
+    color: #ddd;
+    font-size: 0.95rem;
+    line-height: 1.5;
+    margin-bottom: 0.5rem;
+}
+
+.team-popover-close {
+    background: #ff4444;
+    color: #fff;
+    border: none;
+    border-radius: 10px;
+    padding: 6px 12px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+@keyframes popIn {
+    from { opacity: 0; transform: translate(-50%, 110%); }
+    to { opacity: 1; transform: translate(-50%, 100%); }
 }
 
 /* Impact Section */

@@ -8,6 +8,9 @@ const tabContents = document.querySelectorAll('.tab-content');
 const statNumbers = document.querySelectorAll('.stat-number');
 const contactForm = document.getElementById('contact-form');
 const formMessage = document.getElementById('form-message');
+const themeToggle = document.getElementById('theme-toggle');
+const scrollProgress = document.getElementById('scroll-progress');
+const backToTop = document.getElementById('back-to-top');
 
 // Mobile Navigation Toggle
 hamburger.addEventListener('click', () => {
@@ -351,6 +354,82 @@ const throttledScrollHandler = throttle(() => {
 }, 10);
 
 window.addEventListener('scroll', throttledScrollHandler);
+
+// Scroll progress bar update
+window.addEventListener('scroll', () => {
+    const scrollTop = window.scrollY;
+    const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+    const progress = Math.max(0, Math.min(1, scrollTop / docHeight));
+    if (scrollProgress) {
+        scrollProgress.style.width = `${progress * 100}%`;
+    }
+});
+
+// Back to top visibility + behavior
+window.addEventListener('scroll', () => {
+    if (!backToTop) return;
+    if (window.scrollY > 400) {
+        backToTop.classList.add('show');
+    } else {
+        backToTop.classList.remove('show');
+    }
+});
+
+backToTop?.addEventListener('click', () => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+});
+
+// Dark mode toggle with persistence and system preference
+(function initTheme() {
+    const saved = localStorage.getItem('theme');
+    const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+    const shouldDark = saved ? saved === 'dark' : prefersDark;
+    document.body.classList.toggle('dark', shouldDark);
+    updateThemeIcon();
+})();
+
+function updateThemeIcon() {
+    if (!themeToggle) return;
+    const isDark = document.body.classList.contains('dark');
+    themeToggle.innerHTML = isDark ? '<i class="fas fa-sun"></i>' : '<i class="fas fa-moon"></i>';
+}
+
+themeToggle?.addEventListener('click', () => {
+    document.body.classList.toggle('dark');
+    const isDark = document.body.classList.contains('dark');
+    localStorage.setItem('theme', isDark ? 'dark' : 'light');
+    updateThemeIcon();
+});
+
+// Keyboard shortcut: toggle theme with "d"
+document.addEventListener('keydown', (e) => {
+    if ((e.key === 'd' || e.key === 'D') && !e.ctrlKey && !e.metaKey && !e.altKey) {
+        themeToggle?.click();
+    }
+});
+
+// Scrollspy: highlight active nav link while scrolling
+(function initScrollSpy() {
+    const sections = Array.from(document.querySelectorAll('section[id]'));
+    const links = Array.from(document.querySelectorAll('.nav-link'));
+    if (!sections.length || !links.length) return;
+
+    const setActive = () => {
+        const fromTop = window.scrollY + 80; // account for navbar height
+        let currentId = sections[0].id;
+        for (const section of sections) {
+            if (section.offsetTop <= fromTop) currentId = section.id;
+        }
+        links.forEach(link => {
+            const href = link.getAttribute('href');
+            if (!href || !href.startsWith('#')) return;
+            const id = href.slice(1);
+            if (id === currentId) link.classList.add('active'); else link.classList.remove('active');
+        });
+    };
+    window.addEventListener('scroll', throttle(setActive, 50));
+    setActive();
+})();
 
 // --- Team card: tilt + popover interactions ---
 (function enhanceTeamCards() {

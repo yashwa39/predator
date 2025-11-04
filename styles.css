@@ -1194,6 +1194,61 @@ section {
     color: #ccc;
 }
 
+/* --- Site-wide interactive enhancements and dark mode overrides --- */
+/* Dark mode base */
+body.dark { background: #0b0b12; color: #e5e7eb; }
+body.dark .section-header h2 { color: #e5e7eb; }
+body.dark .section-header p { color: #a1a1aa; }
+
+/* Theming per section containers */
+body.dark .about,
+body.dark .features,
+body.dark .team,
+body.dark .contact { background: #0f1220; }
+body.dark .how-it-works,
+body.dark .technology,
+body.dark .impact { background: #0f1220; }
+
+/* Card/background elements */
+body.dark .feature-card,
+body.dark .team-card,
+body.dark .problem-card,
+body.dark .foundation-card,
+body.dark .contact-form,
+body.dark .demo-results { background: #141826; }
+body.dark .contact-info h3,
+body.dark .team-card h4,
+body.dark .feature-card h4,
+body.dark .foundation-card h4,
+body.dark .process-step h5,
+body.dark .vision-text h3,
+body.dark .vision-text h4 { color: #e5e7eb; }
+body.dark .problem-card p,
+body.dark .foundation-card p,
+body.dark .feature-card p,
+body.dark .team-card p,
+body.dark .vision-text p,
+body.dark .contact-item p { color: #a1a1aa; }
+
+/* Footer dark tweak */
+body.dark .footer { background: #0d0d15; }
+
+/* Form states in dark */
+body.dark .form-group label { color: #e5e7eb; }
+body.dark .form-message.success { background: #0f2d18; color: #c6f6d5; border: 1px solid #2f855a; }
+body.dark .form-message.error { background: #3c0f13; color: #feb2b2; border: 1px solid #c53030; }
+
+/* Theme toggle button */
+.theme-toggle { background: transparent; color: #fff; border: 2px solid #ff4444; border-radius: 25px; padding: 6px 12px; cursor: pointer; margin-left: 1rem; transition: all 0.3s ease; }
+.theme-toggle:hover { background: #ff4444; }
+
+/* Scroll progress bar */
+#scroll-progress { position: fixed; top: 0; left: 0; height: 3px; width: 0; background: linear-gradient(90deg, #ff4444, #ff6b6b); z-index: 1200; }
+
+/* Back to top button */
+#back-to-top { position: fixed; right: 20px; bottom: 20px; width: 44px; height: 44px; border-radius: 50%; background: #ff4444; color: #fff; border: none; box-shadow: 0 10px 25px rgba(0,0,0,0.2); cursor: pointer; display: flex; align-items: center; justify-content: center; opacity: 0; visibility: hidden; transform: translateY(10px); transition: all 0.3s ease; z-index: 1200; }
+#back-to-top.show { opacity: 1; visibility: visible; transform: translateY(0); }
+
 /* Responsive Design */
 @media (max-width: 768px) {
     .hamburger {

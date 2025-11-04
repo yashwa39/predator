@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cookie Policy - PREDATOR</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <nav class="navbar" id="navbar">
+        <div class="nav-container">
+            <div class="nav-logo">
+                <h2><a href="index.html#home" class="nav-link" style="text-decoration:none">PREDATOR</a></h2>
+            </div>
+            <ul class="nav-menu" id="nav-menu">
+                <li class="nav-item"><a href="index.html#about" class="nav-link">About</a></li>
+                <li class="nav-item"><a href="index.html#features" class="nav-link">Features</a></li>
+                <li class="nav-item"><a href="index.html#contact" class="nav-link">Contact</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <section class="about" style="padding-top:110px">
+        <div class="container">
+            <div class="section-header">
+                <h2>Cookie Policy</h2>
+                <p>How and why we use cookies and similar technologies</p>
+            </div>
+
+            <div class="contact-form" style="max-width:900px;margin:0 auto">
+                <h3 style="margin-bottom:1rem; color:#333">What Are Cookies?</h3>
+                <p style="margin-bottom:1rem; color:#666">Cookies are small text files stored on your device by your browser. They help our site remember your preferences and improve your experience.</p>
+
+                <h4 style="margin:1.5rem 0 0.5rem; color:#333">Types of Cookies We Use</h4>
+                <ul class="roadmap-list">
+                    <li><strong>Essential</strong>: required for core functionality (e.g., cookie consent, security)</li>
+                    <li><strong>Preferences</strong>: remember choices like theme (dark/light)</li>
+                    <li><strong>Analytics</strong>: help us understand usage and improve the site (optional)</li>
+                </ul>
+
+                <h4 style="margin:1.5rem 0 0.5rem; color:#333">Your Choices</h4>
+                <ul class="roadmap-list">
+                    <li>You can accept or decline non-essential cookies via our banner</li>
+                    <li>Adjust your browser settings to manage cookies</li>
+                    <li>Withdraw consent anytime—clear cookies or use the banner</li>
+                </ul>
+
+                <h4 style="margin:1.5rem 0 0.5rem; color:#333">Managing Preferences</h4>
+                <p style="margin-bottom:1rem; color:#666">Use the controls below to update consent settings.</p>
+
+                <div style="display:flex; gap:10px; flex-wrap:wrap">
+                    <button class="btn btn-primary" id="accept-all">Accept All</button>
+                    <button class="btn btn-secondary" id="reject-nonessential">Reject Non‑Essential</button>
+                    <button class="btn btn-secondary" id="reset-consent">Reset Consent</button>
+                </div>
+
+                <p style="margin-top:1rem; color:#666"><strong>Status:</strong> <span id="consent-status">Loading…</span></p>
+                <p style="margin-top:1rem; color:#666"><strong>Effective date:</strong> November 2025</p>
+            </div>
+        </div>
+    </section>
+
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-bottom">
+                <p>&copy; 2025 PREDATOR. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        const CONSENT_KEY = 'cookie_consent';
+        function getConsent() {
+            try { return JSON.parse(localStorage.getItem(CONSENT_KEY) || 'null'); } catch { return null; }
+        }
+        function setConsent(val) {
+            localStorage.setItem(CONSENT_KEY, JSON.stringify(val));
+            updateStatus();
+        }
+        function updateStatus() {
+            const statusEl = document.getElementById('consent-status');
+            const c = getConsent();
+            let txt = 'Not set';
+            if (c && c.accepted === true) txt = 'Accepted all';
+            else if (c && c.accepted === false) txt = 'Rejected non-essential';
+            statusEl.textContent = txt;
+        }
+        document.getElementById('accept-all').addEventListener('click', ()=> setConsent({ accepted: true, ts: Date.now() }));
+        document.getElementById('reject-nonessential').addEventListener('click', ()=> setConsent({ accepted: false, ts: Date.now() }));
+        document.getElementById('reset-consent').addEventListener('click', ()=> { localStorage.removeItem(CONSENT_KEY); updateStatus(); });
+        updateStatus();
+    </script>
+</body>
+</html>
+
+

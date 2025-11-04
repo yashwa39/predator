@@ -11,6 +11,9 @@ const formMessage = document.getElementById('form-message');
 const themeToggle = document.getElementById('theme-toggle');
 const scrollProgress = document.getElementById('scroll-progress');
 const backToTop = document.getElementById('back-to-top');
+const cookieBanner = document.getElementById('cookie-banner');
+const cookieAccept = document.getElementById('cookie-accept');
+const cookieReject = document.getElementById('cookie-reject');
 
 // Mobile Navigation Toggle
 hamburger.addEventListener('click', () => {
@@ -386,6 +389,29 @@ backToTop?.addEventListener('click', () => {
     const shouldDark = saved ? saved === 'dark' : prefersDark;
     document.body.classList.toggle('dark', shouldDark);
     updateThemeIcon();
+})();
+
+// Cookie consent banner logic
+(function initCookieBanner() {
+    const CONSENT_KEY = 'cookie_consent';
+    function getConsent() {
+        try { return JSON.parse(localStorage.getItem(CONSENT_KEY) || 'null'); } catch { return null; }
+    }
+    function setConsent(val) {
+        localStorage.setItem(CONSENT_KEY, JSON.stringify(val));
+    }
+    const consent = getConsent();
+    if (!consent) {
+        cookieBanner && (cookieBanner.style.display = 'block');
+    }
+    cookieAccept?.addEventListener('click', () => {
+        setConsent({ accepted: true, ts: Date.now() });
+        if (cookieBanner) cookieBanner.style.display = 'none';
+    });
+    cookieReject?.addEventListener('click', () => {
+        setConsent({ accepted: false, ts: Date.now() });
+        if (cookieBanner) cookieBanner.style.display = 'none';
+    });
 })();
 
 function updateThemeIcon() {

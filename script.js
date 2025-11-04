@@ -457,6 +457,150 @@ document.addEventListener('keydown', (e) => {
     setActive();
 })();
 
+// Emergency Drill mini‑game
+(function initDrill() {
+    const openBtn = document.getElementById('open-drill');
+    const modal = document.getElementById('drill-modal');
+    const closeBtn = document.getElementById('drill-close');
+    const startBtn = document.getElementById('drill-start');
+    const resetBtn = document.getElementById('drill-reset');
+    const canvas = document.getElementById('drill-canvas');
+    const timeEl = document.getElementById('drill-time');
+    const scoreEl = document.getElementById('drill-score');
+    const bestEl = document.getElementById('drill-best');
+    if (!openBtn || !modal || !canvas) return;
+
+    const ctx = canvas.getContext('2d');
+    let hazards = [];
+    let playing = false;
+    let score = 0;
+    let best = parseInt(localStorage.getItem('drill_best') || '0');
+    let timeLeft = 30;
+    let lastSpawn = 0;
+    let lastFrame = 0;
+    let streak = 0; // for multiplier
+
+    const hazardIcons = ['⚡','🔥','💨','💧','☢️','🚨','🧪'];
+    function spawnHazard() {
+        const size = 28 + Math.random() * 20;
+        hazards.push({
+            x: Math.random() * (canvas.width - size) + size/2,
+            y: -size,
+            vy: 80 + Math.random() * 120,
+            size,
+            icon: hazardIcons[Math.floor(Math.random()*hazardIcons.length)],
+            alive: true
+        });
+    }
+
+    function drawHazard(h) {
+        ctx.font = `${h.size}px system-ui, Apple Color Emoji, Segoe UI Emoji`;
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText(h.icon, h.x, h.y);
+    }
+
+    function update(dt) {
+        if (!playing) return;
+        // spawn every ~450ms
+        lastSpawn += dt;
+        if (lastSpawn > 450) { spawnHazard(); lastSpawn = 0; }
+        hazards.forEach(h => { h.y += h.vy * (dt/1000); if (h.y - h.size > canvas.height) { h.alive = false; streak = 0; } });
+        hazards = hazards.filter(h => h.alive);
+    }
+
+    function render() {
+        ctx.clearRect(0,0,canvas.width,canvas.height);
+        // background grid glow
+        ctx.save();
+        ctx.strokeStyle = 'rgba(255, 68, 68, 0.08)';
+        for (let x=0; x<canvas.width; x+=40) { ctx.beginPath(); ctx.moveTo(x,0); ctx.lineTo(x,canvas.height); ctx.stroke(); }
+        for (let y=0; y<canvas.height; y+=40) { ctx.beginPath(); ctx.moveTo(0,y); ctx.lineTo(canvas.width,y); ctx.stroke(); }
+        ctx.restore();
+        hazards.forEach(drawHazard);
+    }
+
+    function loop(ts) {
+        if (!playing) { render(); return; }
+        if (!lastFrame) lastFrame = ts;
+        const dt = ts - lastFrame;
+        lastFrame = ts;
+        update(dt);
+        render();
+        requestAnimationFrame(loop);
+    }
+
+    function startGame() {
+        score = 0; timeLeft = 30; hazards = []; playing = true; lastSpawn = 0; lastFrame = 0; streak = 0;
+        scoreEl.textContent = String(score);
+        bestEl.textContent = String(best);
+        timeEl.textContent = String(timeLeft);
+        const timer = setInterval(() => {
+            if (!playing) { clearInterval(timer); return; }
+            timeLeft -= 1;
+            timeEl.textContent = String(timeLeft);
+            if (timeLeft <= 0) {
+                playing = false; clearInterval(timer);
+                if (score > best) { best = score; localStorage.setItem('drill_best', String(best)); }
+                bestEl.textContent = String(best);
+            }
+        }, 1000);
+        requestAnimationFrame(loop);
+    }
+
+    function resetGame() {
+        playing = false; hazards = []; render(); score = 0; timeLeft = 30; streak = 0;
+        scoreEl.textContent = '0'; timeEl.textContent = '30'; bestEl.textContent = String(best);
+    }
+
+    function hitTest(x, y, h) {
+        const dx = x - h.x; const dy = y - h.y; const r = h.size * 0.6;
+        return dx*dx + dy*dy <= r*r;
+    }
+
+    canvas.addEventListener('click', (e) => {
+        if (!modal || modal.getAttribute('aria-hidden') === 'true') return;
+        const rect = canvas.getBoundingClientRect();
+        const x = (e.clientX - rect.left) * (canvas.width / rect.width);
+        const y = (e.clientY - rect.top) * (canvas.height / rect.height);
+        for (let i = hazards.length - 1; i >= 0; i--) {
+            const h = hazards[i];
+            if (hitTest(x, y, h)) {
+                hazards.splice(i,1);
+                streak = Math.min(streak + 1, 10);
+                const gain = 10 * (1 + Math.floor(streak/3));
+                score += gain;
+                scoreEl.textContent = String(score);
+                // pop effect
+                ctx.save();
+                ctx.fillStyle = 'rgba(255, 68, 68, 0.6)';
+                ctx.beginPath(); ctx.arc(h.x, h.y, h.size/2 + 6, 0, Math.PI*2); ctx.fill();
+                ctx.restore();
+                break;
+            }
+        }
+    });
+
+    function openModal() {
+        modal.style.display = 'flex';
+        modal.setAttribute('aria-hidden', 'false');
+        best = parseInt(localStorage.getItem('drill_best') || '0');
+        bestEl.textContent = String(best);
+        resetGame();
+    }
+    function closeModal() {
+        modal.style.display = 'none';
+        modal.setAttribute('aria-hidden', 'true');
+        playing = false;
+    }
+
+    openBtn.addEventListener('click', openModal);
+    closeBtn?.addEventListener('click', closeModal);
+    startBtn?.addEventListener('click', startGame);
+    resetBtn?.addEventListener('click', resetGame);
+    modal.addEventListener('click', (e) => { if (e.target === modal) closeModal(); });
+})();
+
 // --- Team card: tilt + popover interactions ---
 (function enhanceTeamCards() {
     const teamCards = document.querySelectorAll('.team-card');

@@ -58,6 +58,7 @@
                 <div class="hero-buttons">
                     <a href="#about" class="btn btn-primary">Learn More</a>
                     <a href="#contact" class="btn btn-secondary">Contact Us</a>
+                    <button class="btn btn-primary" id="open-drill" aria-label="Play Emergency Drill">Play Drill</button>
                 </div>
             </div>
             <div class="hero-visual">
@@ -596,6 +597,27 @@
     </div>
 
     <button id="back-to-top" aria-label="Back to top"><i class="fas fa-arrow-up"></i></button>
+
+    <!-- Emergency Drill Modal -->
+    <div id="drill-modal" class="drill-modal" aria-hidden="true" role="dialog" aria-labelledby="drill-title">
+        <div class="drill-dialog">
+            <div class="drill-header">
+                <h3 id="drill-title">Emergency Drill</h3>
+                <button class="drill-close" id="drill-close" aria-label="Close">×</button>
+            </div>
+            <div class="drill-meta">
+                <div>Time: <span id="drill-time">30</span>s</div>
+                <div>Score: <span id="drill-score">0</span></div>
+                <div>Best: <span id="drill-best">0</span></div>
+            </div>
+            <canvas id="drill-canvas" width="640" height="360" aria-label="Drill game area"></canvas>
+            <div class="drill-controls">
+                <button class="btn btn-primary" id="drill-start">Start</button>
+                <button class="btn btn-secondary" id="drill-reset">Reset</button>
+            </div>
+            <div class="drill-tip">Tip: Click the falling hazards to score. Multipliers for streaks!</div>
+        </div>
+    </div>
 
     <script src="script.js"></script>
 </body>
